@@ -8,7 +8,16 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
+enum class TimerState {
+    Uninitialized,
+    InProgress,
+    Paused,
+}
+
 class CountdownViewModel : ViewModel() {
+
+    // The timer
+    private lateinit var timer: CountDownTimer
 
     private val _totalTime = MutableLiveData("")
     val totalTime: LiveData<String> = _totalTime
@@ -17,15 +26,13 @@ class CountdownViewModel : ViewModel() {
         _totalTime.value = newTime
     }
 
-    val totalTimeStateFlow = MutableStateFlow(0L)
     val remainingTimeStateFlow = MutableStateFlow(0L)
+    val timerStateFlow = MutableStateFlow(TimerState.Uninitialized)
 
-    fun startCountdownTimer(timeInFuture: Long, interval: Long) {
-        viewModelScope.launch {
-            totalTimeStateFlow.emit(timeInFuture)
-        }
+    fun start(timeInFuture: Long, interval: Long) {
+        timerStateFlow.value = TimerState.InProgress
 
-        val timer = object : CountDownTimer(timeInFuture, interval) {
+        timer = object : CountDownTimer(timeInFuture, interval) {
             override fun onTick(millisUntilFinished: Long) {
                 viewModelScope.launch {
                     remainingTimeStateFlow.emit(millisUntilFinished)
@@ -37,5 +44,21 @@ class CountdownViewModel : ViewModel() {
         }
 
         timer.start()
+    }
+
+    fun resume() {
+        start(remainingTimeStateFlow.value, 1L)
+    }
+
+    fun pause() {
+        timerStateFlow.value = TimerState.Paused
+        timer.cancel()
+    }
+
+    fun clear() {
+        timerStateFlow.value = TimerState.Uninitialized
+        remainingTimeStateFlow.value = 0
+        timer.cancel()
+        onTotalTimeChanged("0")
     }
 }
