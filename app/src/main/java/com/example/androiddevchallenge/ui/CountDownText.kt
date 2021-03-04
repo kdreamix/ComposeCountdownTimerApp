@@ -9,7 +9,6 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androiddevchallenge.CountdownViewModel
 import com.example.androiddevchallenge.TimerState
@@ -32,7 +31,7 @@ fun CountDownInput(
 
 @Composable
 fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
-    val totalTime: String by viewModel.totalTime.observeAsState("")
+    val totalTime: String by viewModel.inputTimeStateFlow.collectAsState("")
     val timerState: TimerState by viewModel.timerStateFlow.collectAsState(TimerState.Uninitialized)
     Column {
         CountDownText()

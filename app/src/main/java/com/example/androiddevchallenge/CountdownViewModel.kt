@@ -1,8 +1,6 @@
 package com.example.androiddevchallenge
 
 import android.os.CountDownTimer
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,15 +17,13 @@ class CountdownViewModel : ViewModel() {
     // The timer
     private lateinit var timer: CountDownTimer
 
-    private val _totalTime = MutableLiveData("")
-    val totalTime: LiveData<String> = _totalTime
-
-    fun onTotalTimeChanged(newTime: String) {
-        _totalTime.value = newTime
-    }
-
+    val inputTimeStateFlow = MutableStateFlow("")
     val remainingTimeStateFlow = MutableStateFlow(0L)
     val timerStateFlow = MutableStateFlow(TimerState.Uninitialized)
+
+    fun onTotalTimeChanged(newTime: String) {
+        inputTimeStateFlow.value = newTime
+    }
 
     fun start(timeInFuture: Long, interval: Long) {
         timerStateFlow.value = TimerState.InProgress
@@ -40,6 +36,9 @@ class CountdownViewModel : ViewModel() {
             }
 
             override fun onFinish() {
+                viewModelScope.launch {
+                    remainingTimeStateFlow.emit(0)
+                }
             }
         }
 
