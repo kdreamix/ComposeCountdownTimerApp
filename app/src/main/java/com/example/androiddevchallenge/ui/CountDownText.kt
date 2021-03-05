@@ -18,48 +18,76 @@ package com.example.androiddevchallenge.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androiddevchallenge.CountdownViewModel
 import com.example.androiddevchallenge.TimerState
+import com.example.androiddevchallenge.formatTimeUnit
 
 @Composable
 fun CountDownText(viewModel: CountdownViewModel = viewModel()) {
-    val state by viewModel.remainingTimeStateFlow.collectAsState(0L)
-    Text(text = state.toString())
+    val formattedTime by viewModel.remainingTimeStateFlow.collectAsState(0L)
+    Text(text = formattedTime.toString())
+}
+
+@Composable
+fun InputRow(hour: Int, min: Int, sec: Int, viewModel: CountdownViewModel = viewModel()) {
+    val state by viewModel.timerStateFlow.collectAsState()
+    Column(modifier = Modifier.fillMaxWidth()) {
+        CountDownInput(
+            value = hour.formatTimeUnit(),
+            onValueChange = { viewModel.onHourChange(it.toInt()) },
+            state = state,
+        )
+        CountDownInput(
+            value = min.formatTimeUnit(),
+            onValueChange = { viewModel.onMinChange(it.toInt()) },
+            state = state,
+        )
+        CountDownInput(
+            value = sec.formatTimeUnit(),
+            onValueChange = { viewModel.onSecChange(it.toInt()) },
+            state = state,
+        )
+    }
 }
 
 @Composable
 fun CountDownInput(
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    state: TimerState,
 ) {
     TextField(
         value = value,
         onValueChange = {
             onValueChange(it)
-        }
+        },
+        modifier = Modifier.wrapContentSize(),
+        enabled = state != TimerState.InProgress
     )
 }
 
 @Composable
 fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
-    val totalTime: String by viewModel.inputTimeStateFlow.collectAsState("")
     val timerState: TimerState by viewModel.timerStateFlow.collectAsState(TimerState.Uninitialized)
+    val hour: Int by viewModel.hourStateFlow.collectAsState(0)
+    val min: Int by viewModel.minStateFlow.collectAsState(0)
+    val sec: Int by viewModel.secStateFlow.collectAsState(0)
     Column {
         CountDownText()
-        CountDownInput(
-            value = totalTime,
-            onValueChange = { viewModel.onTotalTimeChanged(it) }
-        )
+        InputRow(hour = hour, min = min, sec = sec)
         StartButton(
             timerState = timerState,
-            onClick = { viewModel.start(totalTime.toLong(), 1L) }
+            onClick = { viewModel.start() }
         )
         PauseResumeToggle(
             timerState = timerState,

@@ -32,28 +32,47 @@ class CountdownViewModel : ViewModel() {
     // The timer
     private lateinit var timer: CountDownTimer
 
-    val inputTimeStateFlow = MutableStateFlow("")
     val remainingTimeStateFlow = MutableStateFlow(0L)
+    val secStateFlow = MutableStateFlow(0)
+    val minStateFlow = MutableStateFlow(0)
+    val hourStateFlow = MutableStateFlow(0)
     val timerStateFlow = MutableStateFlow(TimerState.Uninitialized)
 
-    fun onTotalTimeChanged(newTime: String) {
-        inputTimeStateFlow.value = newTime
+    val remainingMilliSeconds
+        get() = toMilliSeconds(
+            hourStateFlow.value,
+            minStateFlow.value,
+            secStateFlow.value
+        )
+
+    fun onSecChange(newSec: Int) {
+        secStateFlow.value = newSec
     }
 
-    fun start(timeInFuture: Long, interval: Long) {
+    fun onMinChange(newMin: Int) {
+        minStateFlow.value = newMin
+    }
+
+    fun onHourChange(newHour: Int) {
+        hourStateFlow.value = newHour
+    }
+
+    fun start(timeInFuture: Double = remainingMilliSeconds, interval: Long = 1L) {
         timerStateFlow.value = TimerState.InProgress
 
-        timer = object : CountDownTimer(timeInFuture, interval) {
+        timer = object : CountDownTimer(timeInFuture.toLong(), interval) {
             override fun onTick(millisUntilFinished: Long) {
                 viewModelScope.launch {
                     remainingTimeStateFlow.emit(millisUntilFinished)
+                    val (hour, min, sec) = milliSecondsToHHmmss(millisUntilFinished)
+                    hourStateFlow.emit(hour)
+                    minStateFlow.emit(min)
+                    secStateFlow.emit(sec)
                 }
             }
 
             override fun onFinish() {
-                viewModelScope.launch {
-                    remainingTimeStateFlow.emit(0)
-                }
+                clear()
             }
         }
 
@@ -61,7 +80,7 @@ class CountdownViewModel : ViewModel() {
     }
 
     fun resume() {
-        start(remainingTimeStateFlow.value, 1L)
+        start()
     }
 
     fun pause() {
@@ -70,9 +89,11 @@ class CountdownViewModel : ViewModel() {
     }
 
     fun clear() {
+        secStateFlow.value = 0
+        minStateFlow.value = 0
+        hourStateFlow.value = 0
         timerStateFlow.value = TimerState.Uninitialized
         remainingTimeStateFlow.value = 0
         timer.cancel()
-        onTotalTimeChanged("0")
     }
 }
