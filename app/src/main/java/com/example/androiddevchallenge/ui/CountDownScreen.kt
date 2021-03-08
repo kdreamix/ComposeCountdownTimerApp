@@ -104,6 +104,7 @@ fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
+            Chemex()
             RemainingTimeDebugText()
             InputRow(timerState, seconds, onSecondsChange = { seconds = it.toInt() })
             TimeDisplayRow()
