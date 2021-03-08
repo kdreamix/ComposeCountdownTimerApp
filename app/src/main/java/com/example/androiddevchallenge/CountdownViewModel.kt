@@ -17,9 +17,8 @@ package com.example.androiddevchallenge
 
 import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 
 enum class TimerState {
     Uninitialized,
@@ -36,14 +35,12 @@ class CountdownViewModel : ViewModel() {
 
     val timerStateFlow = MutableStateFlow(TimerState.Uninitialized)
 
-    fun start(timeInFuture: Long = remainingTimeStateFlow.value, interval: Long = 1L) {
+    fun start(timeInFuture: Long = remainingTimeStateFlow.value, interval: Long = 1000L) {
         timerStateFlow.value = TimerState.InProgress
-
+        remainingTimeStateFlow.value = timeInFuture
         timer = object : CountDownTimer(timeInFuture, interval) {
             override fun onTick(millisUntilFinished: Long) {
-                viewModelScope.launch {
-                    remainingTimeStateFlow.emit(millisUntilFinished)
-                }
+                remainingTimeStateFlow.value = remainingTimeStateFlow.value - interval
             }
 
             override fun onFinish() {

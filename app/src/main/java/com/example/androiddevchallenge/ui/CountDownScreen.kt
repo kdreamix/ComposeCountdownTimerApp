@@ -17,13 +17,16 @@ package com.example.androiddevchallenge.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androiddevchallenge.CountdownViewModel
 import com.example.androiddevchallenge.TimerState
@@ -52,15 +56,13 @@ fun InputRow(
     seconds: Int,
     onSecondsChange: (String) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        CountDownInput(
-            value = seconds.toString(),
-            onValueChange = {
-                onSecondsChange(it.padStart(1, '0'))
-            },
-            state = state,
-        )
-    }
+    CountDownInput(
+        value = seconds.toString(),
+        onValueChange = {
+            onSecondsChange(it.padStart(1, '0'))
+        },
+        state = state,
+    )
 }
 
 @Composable
@@ -75,16 +77,19 @@ fun CountDownInput(
     onValueChange: (String) -> Unit,
     state: TimerState,
 ) {
-    TextField(
-        value = value,
-        onValueChange = {
-            onValueChange(it)
-        },
-        modifier = Modifier.wrapContentSize(),
-        enabled = state != TimerState.InProgress,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+    Box(modifier = Modifier.width(60.dp)) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {
+                onValueChange(it)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = state != TimerState.InProgress,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            maxLines = 1
 
-    )
+        )
+    }
 }
 
 @OptIn(ExperimentalTime::class)
@@ -93,27 +98,33 @@ fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
     val timerState: TimerState by viewModel.timerStateFlow.collectAsState(TimerState.Uninitialized)
     var seconds by remember { mutableStateOf(0) }
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        RemainingTimeDebugText()
-        InputRow(timerState, seconds, onSecondsChange = { seconds = it.toInt() })
-        TimeDisplayRow()
-        StartButton(
-            timerState = timerState,
-            onClick = { viewModel.start(seconds.seconds.toLongMilliseconds()) }
-        )
-        PauseResumeToggle(
-            timerState = timerState,
-            onClick = {
-                when (timerState) {
-                    TimerState.InProgress -> viewModel.pause()
-                    TimerState.Paused -> viewModel.resume()
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            RemainingTimeDebugText()
+            InputRow(timerState, seconds, onSecondsChange = { seconds = it.toInt() })
+            TimeDisplayRow()
+            StartButton(
+                timerState = timerState,
+                onClick = { viewModel.start((seconds.seconds + 1.seconds).toLongMilliseconds()) }
+            )
+            PauseResumeToggle(
+                timerState = timerState,
+                onClick = {
+                    when (timerState) {
+                        TimerState.InProgress -> viewModel.pause()
+                        TimerState.Paused -> viewModel.resume()
+                    }
                 }
-            }
-        )
-        ClearButton(
-            timerState = timerState,
-            onClick = { viewModel.clear() }
-        )
+            )
+            ClearButton(
+                timerState = timerState,
+                onClick = { viewModel.clear() }
+            )
+        }
     }
 }
 
