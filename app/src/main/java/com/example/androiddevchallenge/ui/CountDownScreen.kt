@@ -48,7 +48,6 @@ import com.example.androiddevchallenge.ui.theme.bgColor
 import com.example.androiddevchallenge.ui.theme.typography
 import kotlin.time.ExperimentalTime
 
-
 @Composable
 fun TimeDisplayRow(viewModel: CountdownViewModel) {
     val remainingTime by viewModel.remainingTimeStateFlow.collectAsState()
@@ -58,8 +57,8 @@ fun TimeDisplayRow(viewModel: CountdownViewModel) {
         text = when (timerState) {
             TimerState.Uninitialized -> totalTime.milliSecondsToHHMMSSDisplay()
             else -> remainingTime.milliSecondsToHHMMSSDisplay()
-
-        }, fontSize = 24.sp
+        },
+        fontSize = 24.sp
     )
 }
 
@@ -86,7 +85,8 @@ fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
             Chemex(
                 modifier = Modifier
                     .padding(horizontal = 64.dp, vertical = 32.dp)
-                    .height(480.dp), progress = progress
+                    .height(480.dp),
+                progress = progress
             )
             ElectronScale()
         }
@@ -156,7 +156,8 @@ fun PauseResumeToggle(timerState: TimerState, onClick: () -> Unit) {
     Image(
         painter = painterResource(id = res),
         contentDescription = "",
-        modifier = Modifier.clickable { onClick() })
+        modifier = Modifier.clickable { onClick() }
+    )
 }
 
 @OptIn(ExperimentalAnimationApi::class)

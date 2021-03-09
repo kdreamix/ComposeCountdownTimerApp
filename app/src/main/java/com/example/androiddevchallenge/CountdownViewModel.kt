@@ -34,7 +34,6 @@ class CountdownViewModel : ViewModel() {
     private lateinit var timer: CountDownTimer
 
     val remainingTimeStateFlow = MutableStateFlow(0L)
-
     val progressStateFlow = MutableStateFlow(0f)
     val totalTimeStateFlow = MutableStateFlow(0L)
     val timerStateFlow = MutableStateFlow(TimerState.Uninitialized)
@@ -42,7 +41,7 @@ class CountdownViewModel : ViewModel() {
     @OptIn(ExperimentalTime::class)
     fun start(
         timeInFuture: Long = totalTimeStateFlow.value + 1.seconds.toLongMilliseconds(),
-        interval: Long = 1000L
+        interval: Long = 100L
     ) {
         if (timeInFuture == 0L) return
         timerStateFlow.value = TimerState.InProgress
@@ -87,7 +86,7 @@ class CountdownViewModel : ViewModel() {
     }
 
     fun clear() {
-        progressStateFlow.value = 0f
+        // progressStateFlow.value = 0f
         timerStateFlow.value = TimerState.Uninitialized
         totalTimeStateFlow.value = 0
         remainingTimeStateFlow.value

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.example.androiddevchallenge.ui
 
 import androidx.compose.animation.core.animateFloatAsState
@@ -50,61 +65,66 @@ fun Chemex(
 
         val progress: Float by animateFloatAsState(
             progress.coerceAtMost(0.99f),
-            animationSpec = spring(stiffness = 50f)
+            animationSpec = spring(stiffness = 20f)
         )
 
-        Canvas(modifier = Modifier
-            .fillMaxSize(), onDraw = {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize(),
+            onDraw = {
 
-            val canvasWidth = size.width
-            val canvasHeight = size.height
+                val canvasWidth = size.width
+                val canvasHeight = size.height
 
-            val l = 0f
-            val r = canvasWidth
-            val t = 0f
-            val b = canvasHeight
+                val l = 0f
+                val r = canvasWidth
+                val t = 0f
+                val b = canvasHeight
 
-            val bottleCurvature = 0.6f
-            val handleCurvature = 0.28f
+                val bottleCurvature = 0.6f
+                val handleCurvature = 0.28f
 
-            val handleL = canvasWidth * 0.2f
-            val handleR = canvasWidth * 0.8f
-            val handleT = canvasHeight * 0.4f
-            val handleB = canvasHeight * 0.6f
-            val handleHeight = handleB - handleT
+                val handleL = canvasWidth * 0.2f
+                val handleR = canvasWidth * 0.8f
+                val handleT = canvasHeight * 0.4f
+                val handleB = canvasHeight * 0.6f
+                val handleHeight = handleB - handleT
 
-            chemexBottle(
-                l,
-                r,
-                t,
-                b,
-                bottleCurvature,
-                colors = listOf(outlineColor, outlineColor)
-            )
-
-            withTransform({
-                scale(0.78f)
-                translate(top = handleHeight / 2)
-            }, {
-                bottomCoffee(
-                    progress = progress,
-                    padding = insidePadding,
-                    canvasWidth = canvasWidth,
-                    canvasHeight = canvasHeight
+                chemexBottle(
+                    l,
+                    r,
+                    t,
+                    b,
+                    bottleCurvature,
+                    colors = listOf(outlineColor, outlineColor)
                 )
-            })
 
-            chemexBottle(
-                handleL,
-                handleR,
-                handleT,
-                handleB,
-                handleCurvature,
-                colors = listOf(handleColor, handleColor2),
-                Fill,
-            )
+                withTransform(
+                    {
+                        scale(0.78f)
+                        translate(top = handleHeight / 2)
+                    },
+                    {
+                        bottomCoffee(
+                            progress = progress,
+                            padding = insidePadding,
+                            canvasWidth = canvasWidth,
+                            canvasHeight = canvasHeight
+                        )
+                    }
+                )
 
-        })
+                chemexBottle(
+                    handleL,
+                    handleR,
+                    handleT,
+                    handleB,
+                    handleCurvature,
+                    colors = listOf(handleColor, handleColor2),
+                    Fill,
+                )
+            }
+        )
     }
 }
 
@@ -139,7 +159,8 @@ private fun DrawScope.chemexBottle(
             start = Offset(size.width / 2 - 64, size.height / 2 - 64),
             end = Offset(size.width / 2 + 64, size.height / 2 + 64),
             tileMode = TileMode.Clamp,
-        ), style = style
+        ),
+        style = style
     )
 }
 
