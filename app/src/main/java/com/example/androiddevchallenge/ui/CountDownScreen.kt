@@ -15,11 +15,11 @@
  */
 package com.example.androiddevchallenge.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,52 +28,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androiddevchallenge.CountdownViewModel
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.TimerState
 import com.example.androiddevchallenge.milliSecondsToHHMMSSDisplay
 import com.example.androiddevchallenge.ui.theme.bgColor
+import com.example.androiddevchallenge.ui.theme.typography
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 @Composable
 fun RemainingTimeDebugText(viewModel: CountdownViewModel = viewModel()) {
     val formattedTime by viewModel.remainingTimeStateFlow.collectAsState(0L)
     Text(text = "Remaining time millis: $formattedTime")
-}
-
-@Composable
-fun InputRow(
-    state: TimerState,
-    seconds: Int,
-    onSecondsChange: (String) -> Unit
-) {
-    CountDownInput(
-        value = seconds.toString(),
-        onValueChange = {
-            onSecondsChange(it.padStart(1, '0'))
-        },
-        state = state,
-    )
 }
 
 @Composable
@@ -86,29 +64,8 @@ fun TimeDisplayRow(viewModel: CountdownViewModel) {
             TimerState.Uninitialized -> totalTime.milliSecondsToHHMMSSDisplay()
             else -> remainingTime.milliSecondsToHHMMSSDisplay()
 
-        }
+        }, fontSize = 24.sp
     )
-}
-
-@Composable
-fun CountDownInput(
-    value: String,
-    onValueChange: (String) -> Unit,
-    state: TimerState,
-) {
-    Box(modifier = Modifier.width(60.dp)) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = {
-                onValueChange(it)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = state != TimerState.InProgress,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            maxLines = 1
-
-        )
-    }
 }
 
 @OptIn(ExperimentalTime::class)
@@ -119,13 +76,19 @@ fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(bgColor)
+            .background(bgColor),
+        contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Chemex(modifier = Modifier.height(480.dp), progress = progress)
+            Text(text = "Chemex countdown", style = typography.h3)
+            Chemex(
+                modifier = Modifier
+                    .padding(horizontal = 64.dp, vertical = 32.dp)
+                    .height(480.dp), progress = progress
+            )
             ElectronScale()
         }
     }
@@ -136,7 +99,6 @@ fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
 fun ElectronScale(viewModel: CountdownViewModel = viewModel()) {
     val timerState: TimerState by viewModel.timerStateFlow.collectAsState(TimerState.Uninitialized)
 
-    RemainingTimeDebugText()
     Box(
         Modifier
             .fillMaxWidth()
@@ -144,30 +106,36 @@ fun ElectronScale(viewModel: CountdownViewModel = viewModel()) {
             .border(8.dp, Color.White, shape = RoundedCornerShape(16.dp))
 
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Button(onClick = { viewModel.addSec() }) {
-                Image(
-                    painterResource(id = R.drawable.ic_baseline_add_circle_outline_24),
-                    contentDescription = "add"
-                )
-            }
-            TimeDisplayRow(viewModel)
-            Button(onClick = { viewModel.minusSec() }) {
-                Image(
-                    painterResource(id = R.drawable.ic_baseline_remove_circle_outline_24),
-                    contentDescription = "minus"
-                )
-            }
-            StartButton(
-                timerState = timerState,
-                onClick = {
-                    viewModel.start()
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+        ) {
+            Image(
+                painterResource(id = R.drawable.ic_baseline_remove_circle_outline_24),
+                contentDescription = "minus",
+                modifier = Modifier.clickable {
+                    viewModel.minusSec()
                 }
             )
+
+            TimeDisplayRow(viewModel)
+
+            Image(
+                painterResource(id = R.drawable.ic_baseline_add_circle_outline_24),
+                contentDescription = "add",
+                modifier = Modifier.clickable {
+                    viewModel.addSec()
+                }
+            )
+
             PauseResumeToggle(
                 timerState = timerState,
                 onClick = {
                     when (timerState) {
+                        TimerState.Uninitialized -> viewModel.start()
                         TimerState.InProgress -> viewModel.pause()
                         TimerState.Paused -> viewModel.resume()
                     }
@@ -180,67 +148,26 @@ fun ElectronScale(viewModel: CountdownViewModel = viewModel()) {
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun StartButton(timerState: TimerState, onClick: () -> Unit) {
-
-    AnimatedVisibility(
-        visible = when (timerState) {
-            TimerState.Uninitialized -> true
-            TimerState.InProgress, TimerState.Paused -> false
-        }
-    ) {
-        Button(
-            onClick = {
-                onClick()
-            }
-        ) {
-            Image(
-                painter = painterResource(R.drawable.ic_baseline_play_circle_outline_24),
-                contentDescription = ""
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
 fun PauseResumeToggle(timerState: TimerState, onClick: () -> Unit) {
-    AnimatedVisibility(
-        visible = when (timerState) {
-            TimerState.Uninitialized -> false
-            TimerState.InProgress, TimerState.Paused -> true
-        }
-    ) {
-        Button(onClick = { onClick() }) {
-            when (timerState) {
-                TimerState.Uninitialized -> Image(
-                    painter = painterResource(R.drawable.ic_baseline_play_circle_outline_24),
-                    contentDescription = ""
-                )
-                TimerState.InProgress -> Image(
-                    painter = painterResource(R.drawable.ic_baseline_pause_circle_outline_24),
-                    contentDescription = ""
-                )
-                TimerState.Paused -> Image(
-                    painter = painterResource(R.drawable.ic_baseline_play_circle_outline_24),
-                    contentDescription = ""
-                )
-            }
-
-        }
+    val res = when (timerState) {
+        TimerState.Uninitialized -> R.drawable.ic_baseline_play_circle_outline_24
+        TimerState.InProgress -> R.drawable.ic_baseline_pause_circle_outline_24
+        TimerState.Paused -> R.drawable.ic_baseline_play_circle_outline_24
     }
+    Image(
+        painter = painterResource(id = res),
+        contentDescription = "",
+        modifier = Modifier.clickable { onClick() })
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ClearButton(onClick: () -> Unit) {
-    Button(
-        onClick = {
+    Image(
+        painter = painterResource(R.drawable.ic_baseline_refresh_24),
+        contentDescription = "",
+        Modifier.clickable {
             onClick()
         }
-    ) {
-        Image(
-            painter = painterResource(R.drawable.ic_baseline_refresh_24),
-            contentDescription = ""
-        )
-    }
+    )
 }

@@ -44,6 +44,7 @@ class CountdownViewModel : ViewModel() {
         timeInFuture: Long = totalTimeStateFlow.value + 1.seconds.toLongMilliseconds(),
         interval: Long = 1000L
     ) {
+        if (timeInFuture == 0L) return
         timerStateFlow.value = TimerState.InProgress
         remainingTimeStateFlow.value = timeInFuture
         timer = object : CountDownTimer(timeInFuture, interval) {

@@ -5,9 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -41,7 +39,6 @@ fun Chemex(
         modifier = modifier
             .fillMaxSize()
             .background(bgColor)
-            .padding(32.dp)
 
     ) {
         val insidePadding = with(LocalDensity.current) { 24.dp.toPx() }
@@ -158,7 +155,7 @@ fun DrawScope.bottomCoffee(
         reverseDiff,
         color = color,
         style = style,
-        alpha = 0.5f
+        alpha = 1f
     )
 
     // drawPath(
