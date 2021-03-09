@@ -44,7 +44,7 @@ fun Chemex(progress: Float = 0.5f) {
     ) {
         val insidePadding = with(LocalDensity.current) { 24.dp.toPx() }
 
-        val progress: Float by animateFloatAsState(progress)
+        val progress: Float by animateFloatAsState(progress.coerceAtMost(0.99f))
 
         Canvas(modifier = Modifier
             .fillMaxSize(), onDraw = {
@@ -101,7 +101,7 @@ private fun DrawScope.chemexBottle(
     b: Float,
     bottleCurvature: Float,
     color: Color,
-    style: DrawStyle = Stroke(width = 6.dp.value, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    style: DrawStyle = Stroke(width = 12.dp.value, cap = StrokeCap.Round, join = StrokeJoin.Round)
 ) {
     val bottlePath = Path().apply {
         moveTo(l, t)
