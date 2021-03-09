@@ -86,7 +86,7 @@ class CountdownViewModel : ViewModel() {
     }
 
     fun clear(resetProgress: Boolean = false) {
-        if (resetProgress){
+        if (resetProgress) {
             progressStateFlow.value = 0f
         }
         timerStateFlow.value = TimerState.Uninitialized
