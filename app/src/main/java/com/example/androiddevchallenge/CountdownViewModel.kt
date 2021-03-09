@@ -16,6 +16,7 @@
 package com.example.androiddevchallenge
 
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +34,8 @@ class CountdownViewModel : ViewModel() {
 
     val remainingTimeStateFlow = MutableStateFlow(0L)
 
+    val progressStateFlow = MutableStateFlow(0f)
+    val totalTimeStateFlow = MutableStateFlow(0L)
     val timerStateFlow = MutableStateFlow(TimerState.Uninitialized)
 
     fun start(timeInFuture: Long = remainingTimeStateFlow.value, interval: Long = 1000L) {
@@ -41,6 +44,12 @@ class CountdownViewModel : ViewModel() {
         timer = object : CountDownTimer(timeInFuture, interval) {
             override fun onTick(millisUntilFinished: Long) {
                 remainingTimeStateFlow.value = remainingTimeStateFlow.value - interval
+                val remainingTime = remainingTimeStateFlow.value
+                val totalTime = totalTimeStateFlow.value
+                val progress =
+                    ((totalTime.toFloat() - remainingTime.toFloat()) / totalTime.toFloat())
+                Log.v("Progress", "Progress: $progress")
+                progressStateFlow.value = progress
             }
 
             override fun onFinish() {
@@ -49,6 +58,10 @@ class CountdownViewModel : ViewModel() {
         }
 
         timer.start()
+    }
+
+    fun updateTotalTime(totalTime: Long) {
+        totalTimeStateFlow.value = totalTime
     }
 
     fun resume() {

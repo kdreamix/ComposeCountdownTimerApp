@@ -96,6 +96,7 @@ fun CountDownInput(
 @Composable
 fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
     val timerState: TimerState by viewModel.timerStateFlow.collectAsState(TimerState.Uninitialized)
+    val progress: Float by viewModel.progressStateFlow.collectAsState(0f)
     var seconds by remember { mutableStateOf(0) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -104,13 +105,17 @@ fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
-            Chemex()
+            Chemex(progress = progress)
             RemainingTimeDebugText()
             InputRow(timerState, seconds, onSecondsChange = { seconds = it.toInt() })
             TimeDisplayRow()
             StartButton(
                 timerState = timerState,
-                onClick = { viewModel.start((seconds.seconds + 1.seconds).toLongMilliseconds()) }
+                onClick = {
+                    val totalTime = (seconds.seconds + 1.seconds).toLongMilliseconds()
+                    viewModel.updateTotalTime(totalTime)
+                    viewModel.start(totalTime)
+                }
             )
             PauseResumeToggle(
                 timerState = timerState,

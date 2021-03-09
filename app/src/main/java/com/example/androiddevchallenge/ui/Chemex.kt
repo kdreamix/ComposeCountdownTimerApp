@@ -1,5 +1,6 @@
 package com.example.androiddevchallenge.ui
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
@@ -30,7 +33,7 @@ import com.example.androiddevchallenge.ui.theme.outlineColor
 
 @Preview
 @Composable
-fun Chemex() {
+fun Chemex(progress: Float = 0.5f) {
     Box(
         modifier = Modifier
             .width(280.dp)
@@ -40,6 +43,8 @@ fun Chemex() {
 
     ) {
         val insidePadding = with(LocalDensity.current) { 24.dp.toPx() }
+
+        val progress: Float by animateFloatAsState(progress)
 
         Canvas(modifier = Modifier
             .fillMaxSize(), onDraw = {
@@ -54,7 +59,6 @@ fun Chemex() {
 
             val bottleCurvature = 0.6f
             val handleCurvature = 0.28f
-            val coffeeCurvature = 0.68f
 
             val handleL = canvasWidth * 0.2f
             val handleR = canvasWidth * 0.8f
@@ -68,7 +72,12 @@ fun Chemex() {
                 scale(0.78f)
                 translate(top = handleHeight / 2)
             }, {
-                bottomCoffee(insidePadding, canvasWidth, canvasHeight)
+                bottomCoffee(
+                    progress = progress,
+                    padding = insidePadding,
+                    canvasWidth = canvasWidth,
+                    canvasHeight = canvasHeight
+                )
             })
 
             chemexBottle(
@@ -80,7 +89,6 @@ fun Chemex() {
                 color = handleColor,
                 Fill,
             )
-
 
         })
     }
@@ -119,24 +127,47 @@ private fun DrawScope.chemexBottle(
 }
 
 fun DrawScope.bottomCoffee(
+    progress: Float = 1f,
     padding: Float,
     canvasWidth: Float,
     canvasHeight: Float,
     color: Color = coffeeColor,
     style: DrawStyle = Fill,
 ) {
+    val top = center.y + padding
+    val coffeeHeight = canvasHeight - top
+    val bottom = canvasHeight - coffeeHeight * progress
     val path = Path().apply {
-        moveTo(center.x, center.y + padding)
-        cubicTo(0f, center.y + padding, center.x, center.y + padding, 0f, canvasHeight)
+        moveTo(center.x, top)
+        cubicTo(0f, top, center.x, top, 0f, canvasHeight)
         lineTo(canvasWidth, canvasHeight)
-        cubicTo(center.x, center.y + padding, canvasWidth, center.y + padding, center.x, center.y + padding)
-        // cubicTo(canvasWidth, canvasHeight, center.x, center.y, canvasWidth,0f)
-        // lineTo(0f,0f)
+        cubicTo(center.x, top, canvasWidth, top, center.x, top)
+    }
+
+    val rect = Path().apply {
+        addRect(Rect(0f, top, canvasWidth, bottom))
+    }
+
+    val reverseDiff = Path().apply {
+        op(rect, path, PathOperation.reverseDifference)
     }
 
     drawPath(
-        path,
+        reverseDiff,
         color = color,
         style = style,
+        alpha = 0.5f
     )
+
+    // drawPath(
+    //     path,
+    //     color = Color.Red,
+    //     style = style,
+    // )
+    //
+    // drawPath(
+    //     rect,
+    //     color = Color.Blue,
+    //     style = style,
+    // )
 }
