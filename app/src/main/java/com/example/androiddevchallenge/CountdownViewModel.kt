@@ -18,8 +18,9 @@ package com.example.androiddevchallenge
 import android.os.CountDownTimer
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 enum class TimerState {
     Uninitialized,
@@ -38,7 +39,11 @@ class CountdownViewModel : ViewModel() {
     val totalTimeStateFlow = MutableStateFlow(0L)
     val timerStateFlow = MutableStateFlow(TimerState.Uninitialized)
 
-    fun start(timeInFuture: Long = remainingTimeStateFlow.value, interval: Long = 1000L) {
+    @OptIn(ExperimentalTime::class)
+    fun start(
+        timeInFuture: Long = totalTimeStateFlow.value + 1.seconds.toLongMilliseconds(),
+        interval: Long = 1000L
+    ) {
         timerStateFlow.value = TimerState.InProgress
         remainingTimeStateFlow.value = timeInFuture
         timer = object : CountDownTimer(timeInFuture, interval) {
@@ -60,12 +65,19 @@ class CountdownViewModel : ViewModel() {
         timer.start()
     }
 
-    fun updateTotalTime(totalTime: Long) {
-        totalTimeStateFlow.value = totalTime
+    @OptIn(ExperimentalTime::class)
+    fun addSec() {
+        totalTimeStateFlow.value = totalTimeStateFlow.value + 1.seconds.toLongMilliseconds()
+    }
+
+    @OptIn(ExperimentalTime::class)
+    fun minusSec() {
+        totalTimeStateFlow.value =
+            (totalTimeStateFlow.value - 1.seconds.toLongMilliseconds()).coerceAtLeast(0)
     }
 
     fun resume() {
-        start()
+        start(remainingTimeStateFlow.value)
     }
 
     fun pause() {
@@ -74,7 +86,9 @@ class CountdownViewModel : ViewModel() {
     }
 
     fun clear() {
+        progressStateFlow.value = 0f
         timerStateFlow.value = TimerState.Uninitialized
+        totalTimeStateFlow.value = 0
         remainingTimeStateFlow.value
         timer.cancel()
     }

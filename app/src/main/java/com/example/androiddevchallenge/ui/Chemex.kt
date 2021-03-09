@@ -33,13 +33,15 @@ import com.example.androiddevchallenge.ui.theme.outlineColor
 
 @Preview
 @Composable
-fun Chemex(progress: Float = 0.5f) {
+fun Chemex(
+    modifier: Modifier = Modifier,
+    progress: Float = 0.5f,
+) {
     Box(
-        modifier = Modifier
-            .width(280.dp)
-            .height(480.dp)
+        modifier = modifier
+            .fillMaxSize()
             .background(bgColor)
-            .padding(16.dp)
+            .padding(32.dp)
 
     ) {
         val insidePadding = with(LocalDensity.current) { 24.dp.toPx() }
