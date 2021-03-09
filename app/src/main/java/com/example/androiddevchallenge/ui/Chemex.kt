@@ -1,20 +1,23 @@
 package com.example.androiddevchallenge.ui
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -26,7 +29,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.ui.theme.bgColor
 import com.example.androiddevchallenge.ui.theme.coffeeColor
+import com.example.androiddevchallenge.ui.theme.coffeeColor2
 import com.example.androiddevchallenge.ui.theme.handleColor
+import com.example.androiddevchallenge.ui.theme.handleColor2
 import com.example.androiddevchallenge.ui.theme.outlineColor
 
 @Preview
@@ -43,7 +48,10 @@ fun Chemex(
     ) {
         val insidePadding = with(LocalDensity.current) { 24.dp.toPx() }
 
-        val progress: Float by animateFloatAsState(progress.coerceAtMost(0.99f))
+        val progress: Float by animateFloatAsState(
+            progress.coerceAtMost(0.99f),
+            animationSpec = spring(stiffness = 50f)
+        )
 
         Canvas(modifier = Modifier
             .fillMaxSize(), onDraw = {
@@ -65,7 +73,14 @@ fun Chemex(
             val handleB = canvasHeight * 0.6f
             val handleHeight = handleB - handleT
 
-            chemexBottle(l, r, t, b, bottleCurvature, color = outlineColor)
+            chemexBottle(
+                l,
+                r,
+                t,
+                b,
+                bottleCurvature,
+                colors = listOf(outlineColor, outlineColor)
+            )
 
             withTransform({
                 scale(0.78f)
@@ -85,7 +100,7 @@ fun Chemex(
                 handleT,
                 handleB,
                 handleCurvature,
-                color = handleColor,
+                colors = listOf(handleColor, handleColor2),
                 Fill,
             )
 
@@ -99,7 +114,7 @@ private fun DrawScope.chemexBottle(
     t: Float,
     b: Float,
     bottleCurvature: Float,
-    color: Color,
+    colors: List<Color>,
     style: DrawStyle = Stroke(width = 12.dp.value, cap = StrokeCap.Round, join = StrokeJoin.Round)
 ) {
     val bottlePath = Path().apply {
@@ -117,11 +132,14 @@ private fun DrawScope.chemexBottle(
         lineTo(l, t)
     }
 
-
     drawPath(
         bottlePath,
-        color = color,
-        style = style
+        brush = Brush.linearGradient(
+            colors = colors,
+            start = Offset(size.width / 2 - 64, size.height / 2 - 64),
+            end = Offset(size.width / 2 + 64, size.height / 2 + 64),
+            tileMode = TileMode.Clamp,
+        ), style = style
     )
 }
 
@@ -130,7 +148,6 @@ fun DrawScope.bottomCoffee(
     padding: Float,
     canvasWidth: Float,
     canvasHeight: Float,
-    color: Color = coffeeColor,
     style: DrawStyle = Fill,
 ) {
     val top = center.y + padding
@@ -152,10 +169,15 @@ fun DrawScope.bottomCoffee(
     }
 
     drawPath(
-        reverseDiff,
-        color = color,
+        path = reverseDiff,
+        brush = Brush.linearGradient(
+            colors = listOf(coffeeColor2, coffeeColor),
+            start = Offset(center.x, top),
+            end = Offset(canvasWidth + 64, canvasHeight),
+            tileMode = TileMode.Clamp,
+        ),
         style = style,
-        alpha = 1f
+        alpha = 1f,
     )
 
     // drawPath(

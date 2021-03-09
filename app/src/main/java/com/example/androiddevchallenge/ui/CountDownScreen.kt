@@ -48,11 +48,6 @@ import com.example.androiddevchallenge.ui.theme.bgColor
 import com.example.androiddevchallenge.ui.theme.typography
 import kotlin.time.ExperimentalTime
 
-@Composable
-fun RemainingTimeDebugText(viewModel: CountdownViewModel = viewModel()) {
-    val formattedTime by viewModel.remainingTimeStateFlow.collectAsState(0L)
-    Text(text = "Remaining time millis: $formattedTime")
-}
 
 @Composable
 fun TimeDisplayRow(viewModel: CountdownViewModel) {
@@ -83,7 +78,11 @@ fun CountDownScreen(viewModel: CountdownViewModel = viewModel()) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text(text = "Chemex countdown", style = typography.h3)
+            Text(
+                text = "Chemex countdown",
+                style = typography.h3,
+                modifier = Modifier.padding(horizontal = 32.dp)
+            )
             Chemex(
                 modifier = Modifier
                     .padding(horizontal = 64.dp, vertical = 32.dp)
