@@ -1,18 +1,17 @@
-# Put title of your app here
+# Compose Coffee Countdown
 
 <!--- Replace <OWNER> with your Github Username and <REPOSITORY> with the name of your repository. -->
 <!--- You can find both of these in the url bar when you open your repository in github. -->
-![Workflow result](https://github.com/<OWNER>/<REPOSITORY>/workflows/Check/badge.svg)
+![Workflow result](https://github.com/kdreamix/ComposeCountdownTimerApp/workflows/Check/badge.svg)
 
 
 ## :scroll: Description
-<!--- Describe your app in one or two sentences -->
-
+An countdown app in form of Chemex coffee maker!
 
 ## :bulb: Motivation and Context
 <!--- Optionally point readers to interesting parts of your submission. -->
 <!--- What are you especially proud of? -->
-
+Being able to draw stuff easily with Compose's canvase and animate it!
 
 ## :camera_flash: Screenshots
 <!-- You can add more screenshots here if you like -->
