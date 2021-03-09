@@ -43,7 +43,7 @@ class CountdownViewModel : ViewModel() {
         timeInFuture: Long = totalTimeStateFlow.value + 1.seconds.toLongMilliseconds(),
         interval: Long = 100L
     ) {
-        if (timeInFuture == 0L) return
+        if (totalTimeStateFlow.value == 0L) return
         timerStateFlow.value = TimerState.InProgress
         remainingTimeStateFlow.value = timeInFuture
         timer = object : CountDownTimer(timeInFuture, interval) {
@@ -85,8 +85,10 @@ class CountdownViewModel : ViewModel() {
         timer.cancel()
     }
 
-    fun clear() {
-        // progressStateFlow.value = 0f
+    fun clear(resetProgress: Boolean = false) {
+        if (resetProgress){
+            progressStateFlow.value = 0f
+        }
         timerStateFlow.value = TimerState.Uninitialized
         totalTimeStateFlow.value = 0
         remainingTimeStateFlow.value

@@ -140,7 +140,7 @@ fun ElectronScale(viewModel: CountdownViewModel = viewModel()) {
                     }
                 }
             )
-            ClearButton { viewModel.clear() }
+            ClearButton { viewModel.clear(resetProgress = true) }
         }
     }
 }
